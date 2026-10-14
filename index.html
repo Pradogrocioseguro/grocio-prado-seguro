@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123b68">
+<title>Grocio Prado Seguro</title>
+<style>
+:root{--navy:#123b68;--blue:#1769aa;--pale:#edf5fc;--red:#d92d3a;--green:#18845b;--ink:#17324d;--muted:#62758a}
+*{box-sizing:border-box}body{margin:0;background:#f3f7fb;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+header{background:linear-gradient(135deg,#123b68,#1875b9);color:white;padding:22px 18px 25px;border-radius:0 0 24px 24px}
+.wrap{max-width:780px;margin:auto} .brand{display:flex;align-items:center;gap:12px}.logo{width:52px;height:52px;border-radius:16px;background:white;color:var(--navy);display:grid;place-items:center;font-size:27px;font-weight:bold}
+h1{font-size:23px;line-height:1.1;margin:0}header p{margin:7px 0 0;color:#e1efff;font-size:14px}
+main{max-width:780px;margin:-8px auto 40px;padding:0 14px}
+.notice{background:#fff8e7;border:1px solid #f0d58c;border-radius:12px;padding:11px 13px;font-size:12px;line-height:1.45;margin:16px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+button,.tile{font:inherit;cursor:pointer}.tile{border:1px solid #dce6f0;background:white;border-radius:16px;min-height:108px;padding:16px;text-align:left;box-shadow:0 3px 12px #17324d0a;color:var(--ink)}
+.tile strong{display:block;margin-top:9px;font-size:15px}.tile span.desc{display:block;color:var(--muted);font-size:12px;margin-top:5px;line-height:1.3}.ico{font-size:25px}
+.tile.emergency{background:var(--red);color:white;border-color:var(--red)}.tile.emergency .desc{color:#fff0f0}
+section.panel{display:none;background:white;border:1px solid #dce6f0;border-radius:16px;padding:17px;margin-top:14px;box-shadow:0 3px 12px #17324d0a}
+section.panel.active{display:block}h2{font-size:19px;margin:0 0 12px}label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd8e5;border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+textarea{min-height:82px;resize:vertical}.primary,.secondary{border:0;border-radius:10px;padding:12px 14px;margin-top:12px;font-weight:bold}.primary{background:var(--blue);color:white}.secondary{background:var(--pale);color:var(--navy);border:1px solid #c9dced}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+#map{height:300px;width:100%;border:0;border-radius:12px;background:#eef3f7}
+.small{font-size:12px;color:var(--muted);line-height:1.5}.report{padding:11px 0;border-bottom:1px solid #e7edf3}.report:last-child{border:0}.badge{display:inline-block;font-size:11px;background:#e8f3ff;color:#135b92;padding:4px 7px;border-radius:20px;margin-bottom:5px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:22px 10px}
+a{color:#155d98} .empty{padding:14px;background:#f6f9fc;border-radius:10px;color:var(--muted);font-size:13px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}header{padding:28px 24px 32px}h1{font-size:27px}}
+</style>
+
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+</head>
+<body>
+<header><div class="wrap"><div class="brand"><div class="logo">🛡️</div><div><h1>GROCIO PRADO SEGURO</h1><p>Vecinos unidos por un distrito más seguro</p></div></div></div></header>
+<main>
+<div class="notice"><strong>Versión demostrativa:</strong> los reportes se guardan solo en este dispositivo. Esta página todavía no está conectada al serenazgo ni envía alertas oficiales. Ante un peligro inmediato, llama a los servicios de emergencia disponibles.</div>
+<div class="grid">
+<button class="tile emergency" onclick="emergency()"><span class="ico">🚨</span><strong>EMERGENCIA</strong><span class="desc">Compartir mi ubicación</span></button>
+<button class="tile" onclick="showPanel('mapPanel')"><span class="ico">🗺️</span><strong>Mapa de seguridad</strong><span class="desc">Ver el mapa del distrito</span></button>
+<button class="tile" onclick="showPanel('routePanel')"><span class="ico">🚶</span><strong>Rutas seguras</strong><span class="desc">Consultar un recorrido</span></button>
+<button class="tile" onclick="showPanel('reportPanel')"><span class="ico">📢</span><strong>Reportar incidente</strong><span class="desc">Comunicar una incidencia</span></button>
+<button class="tile" onclick="showPanel('alertsPanel');renderReports()"><span class="ico">🔔</span><strong>Alertas vecinales</strong><span class="desc">Reportes guardados en este equipo</span></button>
+<button class="tile" onclick="showPanel('contactPanel')"><span class="ico">👮</span><strong>Serenazgo y ayuda</strong><span class="desc">Contactos y recomendaciones</span></button>
+<button class="tile" onclick="showPanel('businessPanel')"><span class="ico">🏪</span><strong>Comercios colaboradores</strong><span class="desc">Espacio para futuros patrocinadores</span></button>
+</div>
+
+<section class="panel" id="mapPanel"><h2>🗺️ Mapa de Grocio Prado</h2><iframe id="map" title="Mapa de Grocio Prado" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-76.205%2C-13.435%2C-76.125%2C-13.375&layer=mapnik"></iframe><p class="small">El mapa muestra calles y lugares, no confirma que una zona sea segura. Los incidentes aún no están compartidos entre usuarios.</p><button class="secondary" onclick="window.open('https://www.openstreetmap.org/#map=14/-13.405/-76.165','_blank')">Abrir mapa completo</button></section>
+
+<section class="panel" id="routePanel"><h2>🚶 Consultar una ruta</h2><p class="small">Abre un planificador de rutas. Revisa el entorno y las condiciones actuales; no existe todavía una clasificación verificada de calles seguras.</p><label for="origin">Punto de partida</label><input id="origin" placeholder="Ej. Plaza de Grocio Prado"><label for="destination">Destino</label><input id="destination" placeholder="Ej. mi trabajo o domicilio (no publiques datos privados)"><button class="primary" onclick="route()">Consultar ruta en Google Maps</button></section>
+
+<section class="panel" id="reportPanel"><h2>📢 Reportar una incidencia</h2><p class="small">No incluyas nombres, fotos ni datos personales de personas acusadas. Si es urgente, busca ayuda directamente.</p><label for="type">Tipo de incidencia</label><select id="type"><option>Alumbrado público</option><option>Robo o asalto reportado</option><option>Problema de tránsito o vía</option><option>Emergencia médica</option><option>Otra incidencia</option></select><label for="sector">Sector o referencia aproximada</label><input id="sector" placeholder="Ej. cerca de una plaza o avenida"><label for="details">Descripción breve</label><textarea id="details" maxlength="400" placeholder="Describe qué ocurrió, sin identificar personas"></textarea><button class="primary" onclick="saveReport()">Guardar reporte en este dispositivo</button><p id="reportStatus" class="small" role="status"></p></section>
+
+<section class="panel" id="alertsPanel"><h2>🔔 Alertas vecinales</h2><p class="small">Demostración local: solo muestra los reportes guardados en este navegador.</p><div id="reports"></div><button class="secondary" onclick="renderReports()">Actualizar lista</button></section>
+
+<section class="panel" id="contactPanel"><h2>👮 Serenazgo y ayuda</h2><p>Los teléfonos oficiales del serenazgo distrital deben confirmarse con la Municipalidad de Grocio Prado antes de incorporarlos.</p><p class="small">Esta demostración no está conectada a la central de serenazgo y no envía avisos al personal municipal.</p><button class="secondary" onclick="window.open('https://www.gob.pe/munigrocioprado','_blank')">Buscar información municipal oficial</button><h3>Si estás en peligro</h3><p class="small">Dirígete a un lugar concurrido, solicita ayuda a personas de confianza y llama al servicio de emergencia correspondiente.</p></section>
+
+<section class="panel" id="businessPanel"><h2>🏪 Comercios colaboradores</h2><p>Este espacio podrá mostrar comercios que apoyen el proyecto. La publicidad deberá identificarse claramente y no interferir con emergencias ni alertas.</p><div class="empty">Próxima etapa: planes de patrocinio para negocios locales. Aún no hay anunciantes contratados.</div></section>
+<footer>GROCIO PRADO SEGURO · Prototipo inicial<br>La información comunitaria debe verificarse antes de tomar decisiones.</footer>
+</main>
+<script>
+const panels=['mapPanel','routePanel','reportPanel','alertsPanel','contactPanel','businessPanel'];
+function showPanel(id){panels.forEach(p=>document.getElementById(p).classList.toggle('active',p===id));document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+function getReports(){try{return JSON.parse(localStorage.getItem('gps_reports')||'[]')}catch(e){return []}}
+function saveReport(){const type=document.getElementById('type').value,sector=document.getElementById('sector').value.trim(),details=document.getElementById('details').value.trim();if(!sector||!details){document.getElementById('reportStatus').textContent='Completa el sector aproximado y la descripción.';return;}const arr=getReports();arr.unshift({type,sector,details,date:new Date().toLocaleString('es-PE')});localStorage.setItem('gps_reports',JSON.stringify(arr.slice(0,50)));document.getElementById('reportStatus').textContent='Reporte guardado solo en este dispositivo. No se ha enviado a serenazgo.';document.getElementById('sector').value='';document.getElementById('details').value='';}
+function renderReports(){const el=document.getElementById('reports'),arr=getReports();if(!arr.length){el.innerHTML='<div class="empty">Todavía no hay reportes guardados en este dispositivo.</div>';return;}el.innerHTML=arr.map(r=>'<div class="report"><span class="badge">'+esc(r.type)+'</span><strong>'+esc(r.sector)+'</strong><p>'+esc(r.details)+'</p><span class="small">'+esc(r.date)+' · No verificado</span></div>').join('')}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function route(){const o=document.getElementById('origin').value.trim(),d=document.getElementById('destination').value.trim();if(!o||!d){alert('Escribe un punto de partida y un destino.');return;}window.open('https://www.google.com/maps/dir/'+encodeURIComponent(o+', Grocio Prado, Chincha, Ica')+'/'+encodeURIComponent(d+', Grocio Prado, Chincha, Ica'),'_blank')}
+function emergency(){if(!navigator.geolocation){alert('Este navegador no permite compartir ubicación.');return;}if(!confirm('Esta función solo prepara un mensaje para tus contactos; no avisa automáticamente al serenazgo. ¿Quieres obtener tu ubicación?'))return;navigator.geolocation.getCurrentPosition(pos=>{const link='https://maps.google.com/?q='+pos.coords.latitude+','+pos.coords.longitude;const msg='Necesito ayuda. Mi ubicación aproximada: '+link;if(navigator.share){navigator.share({title:'Solicitud de ayuda',text:msg}).catch(()=>{})}else{window.prompt('Copia este mensaje y envíalo a un contacto de confianza. No se ha enviado automáticamente:',msg)}},()=>alert('No se pudo obtener la ubicación. Revisa los permisos de ubicación del navegador.'),{enableHighAccuracy:true,timeout:10000});}
+</script>
+
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
+}
+</script>
+
+</body></html>

@@ -1,0 +1,10 @@
+{
+  "name": "Grocio Prado Seguro",
+  "short_name": "GP Seguro",
+  "description": "Prototipo comunitario de seguridad ciudadana para Grocio Prado, Chincha, Ica.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f7fb",
+  "theme_color": "#123b68",
+  "lang": "es-PE"
+}

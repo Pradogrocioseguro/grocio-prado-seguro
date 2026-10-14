@@ -1,0 +1,23 @@
+GROCIO PRADO SEGURO — paquete PWA de demostración
+
+CONTENIDO
+- index.html: prototipo web.
+- manifest.webmanifest: nombre y configuración para instalar como app web.
+- service-worker.js: caché básica para visitas posteriores.
+
+IMPORTANTE
+Esta es una demostración. Los reportes se guardan localmente en el navegador y NO se comparten entre usuarios. No envía alertas a serenazgo ni a la Policía. La función de ubicación solo prepara un mensaje para compartirlo; no realiza llamadas ni despacha ayuda. No usar como sistema de emergencias real.
+
+CÓMO PROBAR EN TU COMPUTADORA
+1. Descomprime este ZIP.
+2. Abre index.html en un navegador para probar el diseño. Algunas funciones PWA solo se activan al publicar el sitio con HTTPS.
+3. Para instalarlo en Android como aplicación web, primero debe publicarse en un alojamiento HTTPS. Luego abre el enlace con Chrome en Android y usa el menú ⋮ > “Instalar aplicación” o “Añadir a pantalla de inicio”, según aparezca.
+
+SIGUIENTE ETAPA PARA USO REAL
+1. Publicar el prototipo en HTTPS.
+2. Conectar una base de datos compartida y autenticación.
+3. Añadir moderación, controles contra reportes falsos y protección de datos.
+4. Acordar protocolos de recepción de alertas con serenazgo.
+5. Probar la ubicación y notificaciones antes de promocionarla al público.
+
+No incluyas datos personales sensibles en los reportes de prueba.
