@@ -22,7 +22,7 @@ section.panel.active{display:block}h2{font-size:19px;margin:0 0 12px}label{displ
 input,select,textarea{width:100%;padding:12px;border:1px solid #cbd8e5;border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
 textarea{min-height:82px;resize:vertical}.primary,.secondary{border:0;border-radius:10px;padding:12px 14px;margin-top:12px;font-weight:bold}.primary{background:var(--blue);color:white}.secondary{background:var(--pale);color:var(--navy);border:1px solid #c9dced}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
-#map{height:300px;width:100%;border:0;border-radius:12px;background:#eef3f7}
+.mapframe{height:300px;width:100%;border:0;border-radius:12px;background:#eef3f7}.mapbox{margin:12px 0}.mapbox h3{font-size:15px;margin:10px 0 7px}.mapnote{font-size:12px;color:var(--muted);line-height:1.45}
 .small{font-size:12px;color:var(--muted);line-height:1.5}.report{padding:11px 0;border-bottom:1px solid #e7edf3}.report:last-child{border:0}.badge{display:inline-block;font-size:11px;background:#e8f3ff;color:#135b92;padding:4px 7px;border-radius:20px;margin-bottom:5px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px 10px}
 a{color:#155d98} .empty{padding:14px;background:#f6f9fc;border-radius:10px;color:var(--muted);font-size:13px}
@@ -34,6 +34,7 @@ a{color:#155d98} .empty{padding:14px;background:#f6f9fc;border-radius:10px;color
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
 <header><div class="wrap"><div class="brand"><div class="logo">🛡️</div><div><h1>GROCIO PRADO SEGURO</h1><p>Vecinos unidos por un distrito más seguro</p></div></div></div></header>
@@ -49,7 +50,10 @@ a{color:#155d98} .empty{padding:14px;background:#f6f9fc;border-radius:10px;color
 <button class="tile" onclick="showPanel('businessPanel')"><span class="ico">🏪</span><strong>Comercios colaboradores</strong><span class="desc">Espacio para futuros patrocinadores</span></button>
 </div>
 
-<section class="panel" id="mapPanel"><h2>🗺️ Mapa de Grocio Prado</h2><iframe id="map" title="Mapa de Grocio Prado" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-76.180%2C-13.435%2C-76.140%2C-13.395&layer=mapnik"></iframe><p class="small">El mapa muestra calles y lugares, no confirma que una zona sea segura. Los incidentes aún no están compartidos entre usuarios.</p><button class="secondary" onclick="window.open('https://www.openstreetmap.org/#map=16/-13.418/-76.136','_blank')">Abrir mapa completo</button></section>
+<section class="panel" id="mapPanel"><h2>🗺️ Mapas de Grocio Prado</h2>
+<div class="mapbox"><h3>1. Vista general del distrito — contorno rojo</h3><div id="districtMap" class="mapframe" role="img" aria-label="Mapa general del distrito con límite administrativo marcado en rojo"></div><p id="boundaryStatus" class="mapnote">Cargando el límite administrativo desde OpenStreetMap…</p></div>
+<div class="mapbox"><h3>2. Calles y zona urbana</h3><iframe class="mapframe" title="Mapa de calles de la zona urbana de Grocio Prado" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-76.175%2C-13.415%2C-76.137%2C-13.382&layer=mapnik&marker=-13.3981%2C-76.1561"></iframe><p class="mapnote">Vista de calles alrededor de la zona urbana. Puedes acercar o alejar el mapa completo.</p></div>
+<p class="small">El mapa muestra calles y límites cartográficos; no confirma que una zona sea segura. Los incidentes aún no están compartidos entre usuarios.</p><button class="secondary" onclick="window.open('https://www.openstreetmap.org/#map=13/-13.3981/-76.1561','_blank')">Abrir mapa general completo</button></section>
 
 <section class="panel" id="routePanel"><h2>🚶 Consultar una ruta</h2><p class="small">Abre un planificador de rutas. Revisa el entorno y las condiciones actuales; no existe todavía una clasificación verificada de calles seguras.</p><label for="origin">Punto de partida</label><input id="origin" placeholder="Ej. Plaza de Grocio Prado"><label for="destination">Destino</label><input id="destination" placeholder="Ej. mi trabajo o domicilio (no publiques datos privados)"><button class="primary" onclick="route()">Consultar ruta en Google Maps</button></section>
 
@@ -73,6 +77,28 @@ function route(){const o=document.getElementById('origin').value.trim(),d=docume
 function emergency(){if(!navigator.geolocation){alert('Este navegador no permite compartir ubicación.');return;}if(!confirm('Esta función solo prepara un mensaje para tus contactos; no avisa automáticamente al serenazgo. ¿Quieres obtener tu ubicación?'))return;navigator.geolocation.getCurrentPosition(pos=>{const link='https://maps.google.com/?q='+pos.coords.latitude+','+pos.coords.longitude;const msg='Necesito ayuda. Mi ubicación aproximada: '+link;if(navigator.share){navigator.share({title:'Solicitud de ayuda',text:msg}).catch(()=>{})}else{window.prompt('Copia este mensaje y envíalo a un contacto de confianza. No se ha enviado automáticamente:',msg)}},()=>alert('No se pudo obtener la ubicación. Revisa los permisos de ubicación del navegador.'),{enableHighAccuracy:true,timeout:10000});}
 </script>
 
+<script>
+let districtMapInstance;
+function initDistrictMap(){
+ const status=document.getElementById('boundaryStatus');
+ if(!window.L){status.textContent='No se pudo cargar el mapa interactivo. Usa “Abrir mapa general completo”.';return;}
+ districtMapInstance=L.map('districtMap').setView([-13.3981,-76.1561],13);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(districtMapInstance);
+ const query='[out:json][timeout:20];relation["boundary"="administrative"]["admin_level"="8"]["name"="Grocio Prado"]["border_type"="district"];out geom;';
+ fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query))
+  .then(r=>{if(!r.ok)throw new Error('No disponible');return r.json()})
+  .then(data=>{
+   const rel=(data.elements||[]).find(e=>e.type==='relation'&&e.members);
+   if(!rel)throw new Error('Límite no encontrado');
+   const features=[];
+   rel.members.filter(m=>m.type==='way'&&m.geometry).forEach(m=>{const pts=m.geometry.map(pt=>[pt.lat,pt.lon]);if(pts.length>1)features.push(L.polyline(pts,{color:'#d92d3a',weight:4,opacity:.95}).addTo(districtMapInstance));});
+   if(!features.length)throw new Error('Geometría vacía');
+   const group=L.featureGroup(features);districtMapInstance.fitBounds(group.getBounds(),{padding:[12,12]});
+   status.textContent='Contorno administrativo en rojo obtenido de OpenStreetMap. La disponibilidad depende de la conexión a internet.';
+  }).catch(()=>{status.textContent='No se pudo cargar el contorno rojo en este momento. Abre el mapa general de OpenStreetMap para consultar los límites; no se dibujó un límite aproximado.';});
+}
+window.addEventListener('load',initDistrictMap);
+</script>
 <script>
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(() => {}));
