@@ -73,7 +73,26 @@ function saveReport(){const type=document.getElementById('type').value,sector=do
 function renderReports(){const el=document.getElementById('reports'),arr=getReports();if(!arr.length){el.innerHTML='<div class="empty">Todavía no hay reportes guardados en este dispositivo.</div>';return;}el.innerHTML=arr.map(r=>'<div class="report"><span class="badge">'+esc(r.type)+'</span><strong>'+esc(r.sector)+'</strong><p>'+esc(r.details)+'</p><span class="small">'+esc(r.date)+' · No verificado</span></div>').join('')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function route(){const o=document.getElementById('origin').value.trim(),d=document.getElementById('destination').value.trim();if(!o||!d){alert('Escribe un punto de partida y un destino.');return;}window.open('https://www.google.com/maps/dir/'+encodeURIComponent(o+', Grocio Prado, Chincha, Ica')+'/'+encodeURIComponent(d+', Grocio Prado, Chincha, Ica'),'_blank')}
-function emergency(){if(!navigator.geolocation){alert('Este navegador no permite compartir ubicación.');return;}if(!confirm('Esta función solo prepara un mensaje para tus contactos; no avisa automáticamente al serenazgo. ¿Quieres obtener tu ubicación?'))return;navigator.geolocation.getCurrentPosition(pos=>{const link='https://maps.google.com/?q='+pos.coords.latitude+','+pos.coords.longitude;const msg='Necesito ayuda. Mi ubicación aproximada: '+link;if(navigator.share){navigator.share({title:'Solicitud de ayuda',text:msg}).catch(()=>{})}else{window.prompt('Copia este mensaje y envíalo a un contacto de confianza. No se ha enviado automáticamente:',msg)}},()=>alert('No se pudo obtener la ubicación. Revisa los permisos de ubicación del navegador.'),{enableHighAccuracy:true,timeout:10000});}
+function emergency(){
+  if(!navigator.geolocation){alert('Este navegador no permite obtener la ubicación. Abre la aplicación desde Chrome y comprueba los permisos de ubicación.');return;}
+  if(!confirm('GROCIO PRADO SEGURO obtendrá tu ubicación y preparará un mensaje para que TÚ lo envíes por WhatsApp u otra aplicación. No avisa automáticamente al serenazgo. ¿Continuar?'))return;
+  const btn=document.querySelector('.tile.emergency');
+  if(btn){btn.disabled=true;btn.querySelector('.desc').textContent='Obteniendo ubicación…';}
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat=pos.coords.latitude.toFixed(6),lon=pos.coords.longitude.toFixed(6);
+    const link='https://www.google.com/maps?q='+lat+','+lon;
+    const msg='🚨 NECESITO AYUDA. Mi ubicación actual es: '+link+' . Por favor, comunícate conmigo y confirma que recibiste este mensaje.';
+    if(btn){btn.disabled=false;btn.querySelector('.desc').textContent='Compartir mi ubicación';}
+    if(navigator.share){
+      try{await navigator.share({title:'GROCIO PRADO SEGURO — Solicitud de ayuda',text:msg});}
+      catch(e){if(e && e.name!=='AbortError'){window.prompt('No se pudo abrir el menú para compartir. Copia el mensaje y envíalo tú:',msg);}}
+    }else{
+      const abrirWhatsApp=confirm('Ubicación obtenida. Pulsa Aceptar para abrir WhatsApp con el mensaje preparado. Debes elegir el contacto y pulsar Enviar.');
+      if(abrirWhatsApp){window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');}
+      else{window.prompt('Copia el mensaje y envíalo a un contacto de confianza:',msg);}
+    }
+  },()=>{if(btn){btn.disabled=false;btn.querySelector('.desc').textContent='Compartir mi ubicación';}alert('No se pudo obtener la ubicación. Activa el permiso de ubicación para este sitio en Chrome y vuelve a intentarlo.');},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
 </script>
 
 
