@@ -56,7 +56,7 @@ a{color:#155d98} .empty{padding:14px;background:#f6f9fc;border-radius:10px;color
 
 <section class="panel" id="routePanel"><h2>🚶 Consultar una ruta</h2><p class="small">Abre un planificador de rutas. Revisa el entorno y las condiciones actuales; no existe todavía una clasificación verificada de calles seguras.</p><label for="origin">Punto de partida</label><input id="origin" placeholder="Ej. Plaza de Grocio Prado"><label for="destination">Destino</label><input id="destination" placeholder="Ej. mi trabajo o domicilio (no publiques datos privados)"><button class="primary" onclick="route()">Consultar ruta en Google Maps</button></section>
 
-<section class="panel" id="reportPanel"><h2>📢 Reportar una incidencia</h2><p class="small">No incluyas nombres, fotos ni datos personales de personas acusadas. Si es urgente, busca ayuda directamente.</p><label for="type">Tipo de incidencia</label><select id="type"><option>Alumbrado público</option><option>Robo o asalto reportado</option><option>Problema de tránsito o vía</option><option>Emergencia médica</option><option>Otra incidencia</option></select><label for="sector">Sector o referencia aproximada</label><input id="sector" placeholder="Ej. cerca de una plaza o avenida"><label for="details">Descripción breve</label><textarea id="details" maxlength="400" placeholder="Describe qué ocurrió, sin identificar personas"></textarea><button class="primary" onclick="saveReport()">Guardar reporte en este dispositivo</button><p id="reportStatus" class="small" role="status"></p></section>
+<section class="panel" id="reportPanel"><h2>📢 Reportar una incidencia</h2><p class="small">No incluyas nombres, fotos ni datos personales de personas acusadas. Si es urgente, busca ayuda directamente.</p><label for="type">Tipo de incidencia</label><select id="type"><option>Alumbrado público</option><option>Robo o asalto reportado</option><option>Problema de tránsito o vía</option><option>Emergencia médica</option><option>Otra incidencia</option></select><label for="sector">Sector o referencia aproximada</label><input id="sector" placeholder="Ej. cerca de una plaza o avenida"><label for="details">Descripción breve</label><textarea id="details" maxlength="400" placeholder="Describe qué ocurrió, sin identificar personas"></textarea><button class="primary" onclick="saveAndShareReport()">Guardar y preparar para compartir por WhatsApp</button><p id="reportStatus" class="small" role="status"></p></section>
 
 <section class="panel" id="alertsPanel"><h2>🔔 Alertas vecinales</h2><p class="small">Demostración local: solo muestra los reportes guardados en este navegador.</p><div id="reports"></div><button class="secondary" onclick="renderReports()">Actualizar lista</button></section>
 
@@ -70,6 +70,23 @@ const panels=['mapPanel','routePanel','reportPanel','alertsPanel','contactPanel'
 function showPanel(id){panels.forEach(p=>document.getElementById(p).classList.toggle('active',p===id));document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
 function getReports(){try{return JSON.parse(localStorage.getItem('gps_reports')||'[]')}catch(e){return []}}
 function saveReport(){const type=document.getElementById('type').value,sector=document.getElementById('sector').value.trim(),details=document.getElementById('details').value.trim();if(!sector||!details){document.getElementById('reportStatus').textContent='Completa el sector aproximado y la descripción.';return;}const arr=getReports();arr.unshift({type,sector,details,date:new Date().toLocaleString('es-PE')});localStorage.setItem('gps_reports',JSON.stringify(arr.slice(0,50)));document.getElementById('reportStatus').textContent='Reporte guardado solo en este dispositivo. No se ha enviado a serenazgo.';document.getElementById('sector').value='';document.getElementById('details').value='';}
+function saveAndShareReport(){
+  const type=document.getElementById('type').value;
+  const sector=document.getElementById('sector').value.trim();
+  const details=document.getElementById('details').value.trim();
+  const status=document.getElementById('reportStatus');
+  if(!sector||!details){status.textContent='Completa el sector aproximado y la descripción.';return;}
+  const date=new Date().toLocaleString('es-PE');
+  const arr=getReports();
+  arr.unshift({type,sector,details,date});
+  localStorage.setItem('gps_reports',JSON.stringify(arr.slice(0,50)));
+  const msg='📢 REPORTE CIUDADANO — GROCIO PRADO SEGURO\nTipo: '+type+'\nSector/referencia: '+sector+'\nDescripción: '+details+'\nFecha: '+date+'\n\nEste reporte no está verificado. Si existe peligro inmediato, contacta directamente a los servicios de emergencia.';
+  status.textContent='Reporte guardado en este dispositivo. Se abrirá WhatsApp para que elijas un contacto y decidas si deseas enviarlo. No se envía automáticamente al serenazgo.';
+  document.getElementById('sector').value='';
+  document.getElementById('details').value='';
+  renderReports();
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank','noopener');
+}
 function renderReports(){const el=document.getElementById('reports'),arr=getReports();if(!arr.length){el.innerHTML='<div class="empty">Todavía no hay reportes guardados en este dispositivo.</div>';return;}el.innerHTML=arr.map(r=>'<div class="report"><span class="badge">'+esc(r.type)+'</span><strong>'+esc(r.sector)+'</strong><p>'+esc(r.details)+'</p><span class="small">'+esc(r.date)+' · No verificado</span></div>').join('')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function route(){const o=document.getElementById('origin').value.trim(),d=document.getElementById('destination').value.trim();if(!o||!d){alert('Escribe un punto de partida y un destino.');return;}window.open('https://www.google.com/maps/dir/'+encodeURIComponent(o+', Grocio Prado, Chincha, Ica')+'/'+encodeURIComponent(d+', Grocio Prado, Chincha, Ica'),'_blank')}
